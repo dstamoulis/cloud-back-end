@@ -289,6 +289,8 @@ sub monitorUser(){
   my $current_position = "nullPosition";
   my @values;
 
+  my $first_time = 1;
+
   my (@sensors) = parseLogFileSensors();
   my (@sensorsIDs) = parseLogFileSensorIDs();
 
@@ -313,6 +315,8 @@ sub monitorUser(){
     $current_position = $values[0];
     if ( !($current_position eq $last_position))
     {
+      if (!$first_time)
+      {
         print "User is just located at ";
         my $sensor_counter = 0;
 
@@ -322,7 +326,8 @@ sub monitorUser(){
                { print "@sensors[$sensor_counter].\n"  }
             $sensor_counter++;    
         } 
-
+      }
+      $first_time = 0;
     }
   }
 
