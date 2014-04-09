@@ -39,6 +39,8 @@ while (<STDIN>) {
   elsif ($user_input eq "help")    { help(); }
   elsif ($user_input eq "users")   { users(); }
   elsif ($user_input eq "sensors") { sensors(); }
+  elsif ($user_input eq "mount")   { system("mount /home/stam/box.com"); }
+  elsif ($user_input eq "umount")  { system("umount /home/stam/box.com"); }
   elsif ($user_input eq "live")    { live(); }
   elsif ($user_input eq "scan")    { scan(); }
   elsif ($user_input eq "matlab")  { matlab(); }
@@ -58,14 +60,18 @@ sub help{
   print "-List all the registered users (appear in the logfile).\n";
   print "\n\tsensors\n\n";
   print "-List all the installed Sensor Tag TI(TM) sensors (appear in the logfile).\n";
+  print "\n\tmount\n\n";
+  print "-Mount the remote Box.com repository via WebDAV protocol.\n";
+  print "\n\tumount\n\n";
+  print "-Unmount the already mounted remote Box.com repository.\n";
   print "\n\tscan\n\n";
   print "-List the latest position of all registered users for today.\n";
   print "\n\tlive\n\n";
-  print "-Track live a particular user for its movements at real time.\n\n";
+  print "-Track live a particular user for its movements at real time.\n";
   print "\n\tmatlab\n\n";
   print "-Compute the probability of a user to be at his lab a specific day.\n";
   print "Logistic Regression (Machine Learning Techniques) are applied using MATLAB software.\n\n";
-  print "\t\t\t\t\t\t      Documentation:\n\t\t\t\t\t\t Stamoulis Dimitrios\n\t\t\t\t(dimitrios.stamoulis\@mail.mcgill.ca)\n\n";
+  #print "\t\t\t\t\t\t      Documentation:\n\t\t\t\t\t\t Stamoulis Dimitrios\n\t\t\t\t(dimitrios.stamoulis\@mail.mcgill.ca)\n\n";
 }
 
 
@@ -84,6 +90,10 @@ sub users{
  }
  
 }
+
+
+
+
 
 
 sub parseLogFileUsers{
@@ -234,13 +244,16 @@ sub live{
      } # end while
  
      if ($user_found){
+
         my (@IDs) = parseLogFileIDs();
         print "\nLive activity of ${user_name} (Press any key to return to main menu):\n";
 	($sec,$min,$hour,$mday,$mon, $year,$wday,$yday,$isdst) = localtime(time);
+
+	system("cp /home/stam/box.com/@IDs[$user_counter]_@mydays[$wday-1].txt ./");
  
         if (open RD, "./@IDs[$user_counter]_@mydays[$wday-1].txt") {
           close RD; # close it - it's here
-	  monitorUser("./@IDs[$user_counter]_@mydays[$wday-1].txt");
+	  monitorUser("@IDs[$user_counter]_@mydays[$wday-1].txt");
         } else {
 	  print "\nExiting - No history for this user today!!\n"
         }
@@ -300,8 +313,12 @@ sub monitorUser(){
     # keep where you were before as a reference
     my $last_position = $current_position;
 
+    # get latest version of file     
+    my $doCp = system("cp /home/stam/box.com/$_[0] ./");
+
+
     # parse the box.com log file
-    open RD, $_[0]; 
+    open RD, "./$_[0]"; 
     while ( (my $line = <RD>) ) 
     {
         @values = split(' ',$line);
@@ -312,7 +329,10 @@ sub monitorUser(){
     close RD; #close file to re-open it and repeat check
 
     # check if I changed position
-    $current_position = $values[0];
+    if ($values[0]){
+       $current_position = $values[0];
+    }
+
     if ( !($current_position eq $last_position))
     {
       if (!$first_time)

@@ -198,7 +198,7 @@ pred = mnrval( B, (1:1:9)' );
 % notify the front end software
 prob = mean(pred(:,2));
 fprintf( 1, 'There is a %0.2f%% chance for the selected user to be at his lab the selected day.\n', ...
-    prob );
+    prob*100 );
 
 
 

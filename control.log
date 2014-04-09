@@ -1,9 +1,10 @@
 # sensor Tags -->  sensorsID, location
-sensor: AC:6A:29:AB:E8:28, IMLab(room 544)
-sensor: BC:6A:29:AB:E8:28, IMLab(room 528)
+sensor: BC:6A:29:AC:2B:28, IMLab(room 544)
+sensor: BC:6A:29:AC:45:59, IMLab(room 528)
 sensor: CC:6A:29:AB:E8:28, Elevators
 
 
 # users --> userFullName, user's_box_credentials, permissions
-user: Stamoulis Dimitrios, stamoulis.dimitrios@gmail.com, IMLab Elevators
-user: Xinchi Chen, xinchi.chen@mail.mcgill.ca, MACSlab Elevators
+user: Stamoulis Dimitrios, stamoulis.dimitrios@gmail.com, IMLab(room 544) Elevators
+user: Xinchi Chen, xinchi.chen@mail.mcgill.ca, IMLab(room 528) Elevators
+user: Demo User, demo, IMLab(room 544) IMLab(room 528)
