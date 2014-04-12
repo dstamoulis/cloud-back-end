@@ -43,7 +43,8 @@ while (<STDIN>) {
   elsif ($user_input eq "umount")  { system("umount /home/stam/box.com"); }
   elsif ($user_input eq "live")    { live(); }
   elsif ($user_input eq "scan")    { scan(); }
-  elsif ($user_input eq "matlab")  { matlab(); }
+  elsif ($user_input eq "matlab_time") { matlab_time(); }
+  elsif ($user_input eq "matlab_day")  { matlab_day(); }
   elsif ($user_input eq "")        { } # do nothing - enter pressed
   else                             { print "unknown command - type help for more options";  }
 
@@ -54,7 +55,8 @@ while (<STDIN>) {
 # Program's user options -- Function definitions
 sub help{
   print "\n\n                        HELP \n\n";
-  print "Back-end Software of Control Panel (Sensor Tags Wireless Network)\n\n";
+  print "Back-end Software of Control Panel (Sensor Tags Wireless Network)\n";
+  print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n";
   print "Available commands:\n";
   print "\n\tusers\n\n";
   print "-List all the registered users (appear in the logfile).\n";
@@ -67,10 +69,14 @@ sub help{
   print "\n\tscan\n\n";
   print "-List the latest position of all registered users for today.\n";
   print "\n\tlive\n\n";
-  print "-Track live a particular user for its movements at real time.\n";
-  print "\n\tmatlab\n\n";
+  print "-Track live a particular user for its movements at real time.\n\n";
+  print "\n\nLogistic Regression (Machine Learning Techniques) are applied using MATLAB software:\n";
+  print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n";
+  print "Available commands:\n";
+  print "\n\tmatlab_day\n\n";
   print "-Compute the probability of a user to be at his lab a specific day.\n";
-  print "Logistic Regression (Machine Learning Techniques) are applied using MATLAB software.\n\n";
+  print "\n\tmatlab_time\n\n";
+  print "-Compute the probability of a user to be at his lab right now.\n\n";
   #print "\t\t\t\t\t\t      Documentation:\n\t\t\t\t\t\t Stamoulis Dimitrios\n\t\t\t\t(dimitrios.stamoulis\@mail.mcgill.ca)\n\n";
 }
 
@@ -246,10 +252,10 @@ sub live{
      if ($user_found){
 
         my (@IDs) = parseLogFileIDs();
-        print "\nLive activity of ${user_name} (Press any key to return to main menu):\n";
+        print "\nLive activity of ${user_name} (Press any key to return to main menu):\n\n";
 	($sec,$min,$hour,$mday,$mon, $year,$wday,$yday,$isdst) = localtime(time);
 
-	system("cp /home/stam/box.com/@IDs[$user_counter]_@mydays[$wday-1].txt ./");
+	my $stat = system("cp /home/stam/box.com/@IDs[$user_counter]_@mydays[$wday-1].txt ./");
  
         if (open RD, "./@IDs[$user_counter]_@mydays[$wday-1].txt") {
           close RD; # close it - it's here
@@ -438,7 +444,7 @@ sub scanUser(){
 
 
 
-sub matlab{
+sub matlab_day{
 
   print "\nRegression Analysis (Machine Learning) - MATLAB Interface\n";
   print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
@@ -514,7 +520,7 @@ sub matlab{
      } # end while
  
     # call MATLAB from command line !!!
-    system("/usr/local/MATLAB/R2012b/bin/matlab -nojvm -nodesktop -r \"select = ${sel_dayname}; run ./machine_learning/logistic_regression.m; quit\"");
+    system("/usr/local/MATLAB/R2012b/bin/matlab -nojvm -nodesktop -r \"select = ${sel_dayname}; run ./machine_learning/logistic_regression_day.m; quit\"");
 
    }
 
@@ -522,6 +528,93 @@ sub matlab{
 
 }
 
+
+
+
+sub matlab_time{
+
+  print "\nRegression Analysis (Machine Learning) - MATLAB Interface\n";
+  print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+  print "The following users are registered:";
+  $reg_users = 1;
+  $user_found = 0;
+  $user_counter;
+  $counter = 0;
+
+  my (@users) = parseLogFileUsers();
+  if (@users)  {   # users found or error msg
+     
+   if (@users[0] eq "Can't open the logfile file: control.log")
+   { $reg_users = 0;}
+
+   foreach my $val (@users) {
+       print "\n${val}";
+   }
+   print "\n";
+
+  } else {
+   $reg_users = 0;
+   print "No registered users!\n";
+  }
+
+  print "\n";
+
+  if ($reg_users){
+ 
+    print "Please give user's name or press 'q' to exit: ";
+    while (<STDIN>) {
+
+      # read user's name
+      $user_name = $_;
+      chop ($user_name);
+
+        if ($user_name eq "q")
+        {
+          last;
+        } else {
+
+          foreach my $val (@users) {
+            if (${val} eq ${user_name}){
+                $user_counter = $counter;
+                $user_found = 1;
+            }
+            $counter++;
+          }
+
+          if (!$user_found){
+              print "unknown user -- please try again\n";
+              print "Please Give user's name or press 'q' to exit: "
+          }else{
+              last;
+          }
+        }
+     } # end while
+
+
+  if ($user_found){
+ 
+    #print "Please select the day's number (1=Monday, 2=Tuesday, ...): ";
+    #while (<STDIN>) {
+
+      ## read day name
+      #$sel_dayname = $_;
+      #chop ($sel_dayname);
+
+      #	if ($sel_dayname < 1 || $sel_dayname > 7) 
+      #  { print "\nwrong day -- please try again: ";} 
+      #	else{ last; }
+
+    #} # end while
+
+    ($sec,$min,$hour,$mday,$mon, $year,$wday,$yday,$isdst) = localtime(time); 
+    # call MATLAB from command line !!!
+    system("/usr/local/MATLAB/R2012b/bin/matlab -nojvm -nodesktop -r \"select = ${hour}+1; run ./machine_learning/logistic_regression_time.m; quit\"");
+
+   }
+
+   } # end if users exist
+
+}
 
 
 
