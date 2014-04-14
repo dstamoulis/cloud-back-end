@@ -255,7 +255,8 @@ sub live{
         print "\nLive activity of ${user_name} (Press any key to return to main menu):\n\n";
 	($sec,$min,$hour,$mday,$mon, $year,$wday,$yday,$isdst) = localtime(time);
 
-	my $stat = system("cp /home/stam/box.com/@IDs[$user_counter]_@mydays[$wday-1].txt ./");
+	# use 2>/dev/null to suppress the error message to the bit bucket
+	my $stat = system("cp /home/stam/box.com/@IDs[$user_counter]_@mydays[$wday-1].txt ./ 2>/dev/null");
  
         if (open RD, "./@IDs[$user_counter]_@mydays[$wday-1].txt") {
           close RD; # close it - it's here
@@ -320,8 +321,8 @@ sub monitorUser(){
     my $last_position = $current_position;
 
     # get latest version of file     
-    my $doCp = system("cp /home/stam/box.com/$_[0] ./");
-
+    # use 2>/dev/null to suppress the error message to the bit bucket
+    my $doCp = system("cp /home/stam/box.com/$_[0] ./ 2>/dev/null");
 
     # parse the box.com log file
     open RD, "./$_[0]"; 
